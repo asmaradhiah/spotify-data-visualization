@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>Spotify Analytics Dashboard</title>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+	<main class="shell">
+		<header class="hero panel">
+			<div>
+				<p class="eyebrow">Spotify Data Visualization</p>
+				<h1> Music Dashboard</h1>
+			</div>
+		</header>
+
+		<section class="panel filters-panel">
+			<div class="filter-group">
+				<label for="year-filter">Year</label>
+				<select id="year-filter"></select>
+			</div>
+			<div class="filter-group">
+				<label for="platform-filter">Platform</label>
+				<select id="platform-filter"></select>
+			</div>
+			<div class="filter-group">
+				<label for="cluster-filter">Genre Cluster</label>
+				<select id="cluster-filter"></select>
+			</div>
+			<button id="reset-filters" class="reset-btn" type="button">Reset filters</button>
+		</section>
+
+		<section class="kpi-grid" id="kpi-grid"></section>
+
+		<section class="grid-two">
+			<article class="panel chart-card wide">
+				<div class="card-header">
+					<div>
+						<p class="eyebrow small">Trend</p>
+						<h2>Line Chart by Year and Streams</h2>
+					</div>
+					<p class="card-note">Total streams per release year for the selected filters.</p>
+				</div>
+				<svg id="trend-chart" viewBox="0 0 760 360" preserveAspectRatio="none" aria-label="Yearly streams line chart"></svg>
+			</article>
+
+			<article class="panel chart-card">
+				<div class="card-header">
+					<div>
+						<p class="eyebrow small">Genre</p>
+						<h2>Streamed by Genre Cluster</h2>
+					</div>
+					<p class="card-note">Click a bar to filter by cluster. Clusters are derived from audio features.</p>
+				</div>
+				<svg id="genre-chart" viewBox="0 0 760 360" preserveAspectRatio="none" aria-label="Genre cluster bar chart"></svg>
+			</article>
+		</section>
+
+		<section class="panel insight-panel">
+			<div class="card-header compact">
+				<div>
+					<p class="eyebrow small">Summary</p>
+					<h2>Dataset Highlights</h2>
+				</div>
+				<p class="card-note">Hover chart marks for tooltips and use the filters to explore the dataset.</p>
+			</div>
+			<div class="insight-grid" id="insight-grid"></div>
+		</section>
+	</main>
+
+	<div id="tooltip" class="tooltip" aria-hidden="true"></div>
+
+	<script src="script.js"></script>
+</body>
+</html>
