@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Spotify 2023 Analytics | Futuristic Overview</title>
+  <!-- Google Fonts & D3.js -->
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+
+  <style>
+    :root {
+      --bg-color: #0b0c10;
+      --card-bg: rgba(24, 24, 24, 0.7);
+      --spotify-green: #1DB954;
+      --green-glow: rgba(29, 185, 84, 0.4);
+      --text-main: #FFFFFF;
+      --text-muted: #B3B3B3;
+      --border-color: rgba(255, 255, 255, 0.1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      min-height: 100vh;
+      overflow-x: hidden;
+      background-image: 
+        radial-gradient(circle at 10% 10%, rgba(29, 185, 84, 0.15) 0%, transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(29, 185, 84, 0.1) 0%, transparent 40%);
+    }
+
+    /* Navigation Header */
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.5rem 4rem;
+      background: rgba(18, 18, 18, 0.8);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-color);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .logo {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--spotify-green);
+      letter-spacing: -0.5px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo-dot {
+      width: 10px;
+      height: 10px;
+      background-color: var(--spotify-green);
+      border-radius: 50%;
+      box-shadow: 0 0 10px var(--spotify-green);
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.95rem;
+      transition: all 0.3s ease;
+    }
+
+    .nav-links a:hover, .nav-links a.active {
+      color: var(--spotify-green);
+      text-shadow: 0 0 8px var(--green-glow);
+    }
+
+    /* Hero Section */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 3rem 2rem;
+    }
+
+    .hero {
+      text-align: center;
+      padding: 4rem 1rem;
+    }
+
+    .hero-badge {
+      display: inline-block;
+      padding: 0.5rem 1.2rem;
+      background: rgba(29, 185, 84, 0.1);
+      border: 1px solid var(--spotify-green);
+      border-radius: 50px;
+      color: var(--spotify-green);
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .hero h1 {
+      font-size: 3.5rem;
+      font-weight: 800;
+      line-height: 1.1;
+      margin-bottom: 1.5rem;
+      background: linear-gradient(180deg, #FFFFFF 0%, #A5A5A5 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero p {
+      font-size: 1.15rem;
+      color: var(--text-muted);
+      max-width: 750px;
+      margin: 0 auto 2.5rem;
+      line-height: 1.6;
+    }
+
+    .cta-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 1rem 2.5rem;
+      background-color: var(--spotify-green);
+      color: #000;
+      font-weight: 700;
+      border-radius: 50px;
+      text-decoration: none;
+      box-shadow: 0 0 20px var(--green-glow);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .cta-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 0 35px rgba(29, 185, 84, 0.7);
+    }
+
+    /* Content Cards Section */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 2rem;
+      margin-top: 3rem;
+    }
+
+    .card {
+      background: var(--card-bg);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 2.5rem;
+      transition: border-color 0.3s ease, transform 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, var(--spotify-green), transparent);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .card:hover {
+      border-color: rgba(29, 185, 84, 0.4);
+      transform: translateY(-5px);
+    }
+
+    .card:hover::before {
+      opacity: 1;
+    }
+
+    .card-tag {
+      font-size: 0.8rem;
+      color: var(--spotify-green);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 0.8rem;
+    }
+
+    .card h3 {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .card p {
+      color: var(--text-muted);
+      line-height: 1.6;
+      font-size: 0.95rem;
+    }
+
+    /* Quick Stats */
+    .stats-container {
+      display: flex;
+      justify-content: space-around;
+      gap: 1.5rem;
+      margin: 4rem 0;
+      padding: 2rem;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      text-align: center;
+    }
+
+    .stat-item h4 {
+      font-size: 2.5rem;
+      color: var(--spotify-green);
+      font-weight: 800;
+    }
+
+    .stat-item p {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-top: 0.5rem;
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 3rem;
+      border-top: 1px solid var(--border-color);
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      margin-top: 5rem;
+    }
+    /* Team Members / Prepared By Section */
+.prepared-by {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  display: inline-block;
+  text-align: left;
+}
+
+.prepared-by h4 {
+  color: var(--spotify-green);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 0.8rem;
+}
+
+.team-grid {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.team-member {
+  font-size: 0.9rem;
+}
+
+.team-member .name {
+  color: var(--text-main);
+  font-weight: 600;
+  display: block;
+}
+
+.team-member .id {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+  </style>
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <nav>
+    <div class="logo">
+      <div class="logo-dot"></div> SPOTIFY DATA 2024
+    </div>
+    <ul class="nav-links">
+      <li><a href="index.html" class="active">Overview</a></li>
+      <li><a href="timeline.html">Timeline</a></li>
+      <li><a href="dashboard/index.html">Dashboard Hub</a></li>
+    </ul>
+  </nav>
+
+  <div class="container">
+    
+    <!-- Hero Section -->
+    <section class="hero">
+      <span class="hero-badge">Interactive Data Storytelling</span>
+      <h1>Decoding Spotify 2023 Popularity & Streaming Dynamics</h1>
+      <p>
+        An immersive analytical deep-dive into Spotify's top-streamed tracks of 2023. Explore how audio features, release strategies, and playlist placements drive global audio hits.
+      </p>
+      <!-- Prepared By Section -->
+      <div class="prepared-by">
+        <h4>Prepared By:</h4>
+        <div class="team-grid">
+          <div class="team-member">
+            <span class="name">Asma' Radhiah</span>
+            <span class="id">ID: 22001859</span>
+          </div>
+          <div class="team-member">
+            <span class="name">Aisyah</span>
+            <span class="id">ID: 22001111</span>
+          </div>
+          <div class="team-member">
+            <span class="name">Madihah</span>
+            <span class="id">ID: 22002123</span>
+          </div>
+          <div class="team-member">
+            <span class="name">Irsha</span>
+            <span class="id">ID: 22001730</span>
+          </div>
+          <div class="team-member">
+            <span class="name">Nasuha Qistina</span>
+            <span class="id">ID: 22002210</span>
+          </div>
+        </div>
+      </div>
+      <a href="timeline.html" class="cta-btn">
+        Explore Dashboard <span>→</span>
+      </a>
+    </section>
+
+    <!-- Key Metrics Highlight -->
+    <div class="stats-container">
+      <div class="stat-item">
+        <h4>4,500+</h4>
+        <p>Most Streamed Songs</p>
+      </div>
+      <div class="stat-item">
+        <h4>10+</h4>
+        <p>Audio Attributes</p>
+      </div>
+      <div class="stat-item">
+        <h4>2023</h4>
+        <p>Year Dataset</p>
+      </div>
+    </div>
+
+    <!-- Domain Summary & Problem Statement Grid -->
+    <div class="grid">
+      
+      <!-- Card 1: Problem Domain -->
+      <div class="card">
+        <div class="card-tag">Problem Domain</div>
+        <h3>What Makes a Hit Song?</h3>
+        <p>
+          With millions of tracks uploaded daily, music producers, artists, and record labels struggle to identify the exact formula behind viral commercial success. Is it high energy, specific BPM range, or playlist placement?
+        </p>
+      </div>
+
+      <!-- Card 2: Objective -->
+      <div class="card">
+        <div class="card-tag">Analytical Objective</div>
+        <h3>Data-Driven Insights</h3>
+        <p>
+          This visualization suite analyzes song metrics—such as danceability, valence, acousticness, and release timelines—to reveal actionable patterns that correlate directly with total stream counts.
+        </p>
+      </div>
+
+      <!-- Card 3: Dashboard Navigation -->
+      <div class="card">
+        <div class="card-tag">Dashboard Hub</div>
+        <h3>Interactive Modules</h3>
+        <p>
+          Navigate through our custom D3.js interactive views: examine historical trendlines in the <strong>Timeline View</strong> or evaluate multi-attribute correlations in the <strong>Dashboard View</strong>.
+        </p>
+      </div>
+
+    </div>
+
+  </div>
+
+  <footer>
+    <p>© 2023 Spotify Data Visualization Project. Built with D3.js & HTML5.</p>
+  </footer>
+
+</body>
+</html>
