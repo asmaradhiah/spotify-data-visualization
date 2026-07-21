@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spotify Dashboard &ndash; Project Progress Timeline</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-deep:#000000;
+    --bg-panel:#181818;
+    --bg-panel-2:#212121;
+    --line:#2a2a2a;
+    --accent:#1DB954;
+    --accent-2:#ff3b3b;
+    --accent-3:#ffd23f;
+    --text-main:#ffffff;
+    --text-dim:#b3b3b3;
+    --text-faint:#727272;
+    --done:#1DB954;
+    --current:#ff3b3b;
+    --upcoming:#535353;
+    --display:'Poppins', sans-serif;
+    --body:'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+  *{box-sizing:border-box;}
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:0.01ms !important; transition-duration:0.01ms !important;}
+  }
+  body{
+    margin:0;
+    font-family:var(--body);
+    background:var(--bg-deep);
+    color:var(--text-main);
+    min-height:100vh;
+    padding:26px 20px 30px;
+  }
+  ::selection{ background:var(--accent); color:#04140e; }
+  :focus-visible{ outline:2px solid var(--accent); outline-offset:3px; border-radius:4px; }
+
+  .wrap{ max-width:960px; margin:0 auto; }
+  header{ text-align:center; margin-bottom:2px; }
+  .eyebrow{
+    font-size:11px; letter-spacing:2px; text-transform:uppercase;
+    color:var(--accent); font-weight:600; margin-bottom:8px;
+  }
+  h1{
+    font-family:var(--display);
+    font-size:clamp(20px,3vw,28px);
+    margin:0 0 6px;
+    letter-spacing:-0.3px;
+    color:var(--accent);
+    font-weight:800;
+  }
+  h1 span{ color:var(--text-main); font-weight:600; }
+  .subtitle{ color:var(--text-dim); font-size:13px; margin-bottom:14px; }
+  .subtitle b{ color:var(--text-main); font-weight:600; }
+
+  .legend{
+    display:flex; justify-content:center; gap:22px; margin-bottom:12px;
+    flex-wrap:wrap; font-size:12px; color:var(--text-dim); font-weight:500;
+  }
+  .legend span{ display:inline-flex; align-items:center; gap:6px; }
+  .dot{ width:8px; height:8px; border-radius:50%; display:inline-block; }
+  .dot.done{ background:var(--done); }
+  .dot.current{ background:var(--current); }
+  .dot.upcoming{ background:var(--upcoming); }
+
+  #timeline-container{
+    background:var(--bg-panel);
+    border:1.5px solid var(--line);
+    border-radius:16px;
+    padding:16px 14px 12px;
+  }
+  .row-label-name{ font-family:var(--display); font-size:12.5px; font-weight:700; fill:var(--text-main); }
+  .row-label-date{ font-size:10px; fill:var(--text-faint); font-weight:500; }
+  .row-gridline{ stroke:var(--line); stroke-width:1; }
+  .interval-track{ fill:#111214; }
+  .interval-bar{ cursor:pointer; stroke:#000000; stroke-width:1.5; transition:filter 0.2s ease; }
+  .interval-bar:hover{ filter:brightness(1.25); }
+  .interval-bar-label{ font-size:10.5px; font-weight:700; fill:#04140e; pointer-events:none; }
+  .today-line{ stroke:var(--text-main); stroke-width:1.5; stroke-dasharray:4 3; opacity:0.55; }
+  .today-label{ font-size:10px; fill:var(--text-main); font-weight:700; }
+  .tick-month{ font-size:11px; fill:var(--text-faint); font-weight:500; }
+
+  #detail-panel{
+    margin-top:12px;
+    background:var(--bg-panel);
+    border:1.5px solid var(--line);
+    border-radius:16px;
+    padding:16px 22px;
+    min-height:100px;
+    transition:opacity 0.2s ease;
+  }
+  #detail-panel h2{
+    margin:0 0 4px; font-family:var(--display); font-size:16px; font-weight:700;
+    display:flex; align-items:center; gap:10px;
+  }
+  #detail-panel .status-pill{
+    font-size:9.5px; padding:2px 9px; border-radius:20px; font-weight:700;
+    text-transform:uppercase; letter-spacing:0.5px;
+  }
+  #detail-panel .date-range{ color:var(--text-dim); font-size:11.5px; margin-bottom:9px; font-weight:500; }
+  #detail-panel p{ color:#e6eaf5; line-height:1.42; margin:0 0 9px; font-size:12.5px; }
+  #detail-panel ul{ margin:0; padding-left:0; list-style:none; }
+  #detail-panel li{
+    color:var(--text-dim); font-size:11.5px; line-height:1.4; padding:4px 0 4px 16px;
+    position:relative; border-top:1px solid var(--line);
+  }
+  #detail-panel li:first-child{ border-top:none; }
+  #detail-panel li::before{ content:'—'; position:absolute; left:0; color:var(--text-faint); }
+
+  .hint{ text-align:center; color:var(--text-faint); font-size:11px; margin-top:8px; }
+  .progress-summary{
+    display:flex; justify-content:center; gap:0; margin:12px 0 12px;
+    border:1.5px solid var(--line); border-radius:14px; overflow:hidden;
+  }
+  .stat{ text-align:center; flex:1; padding:10px 12px; border-left:1.5px solid var(--line); }
+  .stat:first-child{ border-left:none; }
+  .stat .num{ font-family:var(--display); font-size:20px; font-weight:700; color:var(--accent); }
+  .stat .lbl{ font-size:10px; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.8px; margin-top:2px; }
+
+  .crew{ display:flex; align-items:center; justify-content:center; gap:8px; margin:0 0 10px; flex-wrap:wrap; }
+  .crew-avatar{
+    min-width:24px; height:24px; padding:0 7px; border-radius:12px;
+    display:flex; align-items:center; justify-content:center;
+    font-family:var(--display); font-weight:700; font-size:10.5px; letter-spacing:0.3px;
+    color:#04140e; background:var(--accent);
+    border:1.5px solid var(--bg-deep);
+  }
+  .crew-avatar:nth-child(2n){ background:var(--accent-2); color:#210313; }
+  .crew-avatar:nth-child(3n){ background:var(--accent-3); color:#231a00; }
+  .crew-label{ font-size:11px; color:var(--text-dim); margin-left:6px; }
+
+  footer{ text-align:center; color:var(--text-faint); font-size:10.5px; margin-top:16px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Data Visualization Group Project</div>
+    <h1>Spotify Dashboard <span>&mdash; Project Progress Timeline</span></h1>
+    <div class="subtitle">March &ndash; July 2026 &middot; Click any milestone for details</div>
+  </header>
+
+  <div class="crew" id="crew"></div>
+
+  <div class="legend">
+    <span><i class="dot done"></i> Done</span>
+    <span><i class="dot current"></i> Live</span>
+    <span><i class="dot upcoming"></i> Queued</span>
+  </div>
+
+  <div class="progress-summary">
+    <div class="stat"><div class="num" id="stat-done">0</div><div class="lbl">Wrapped</div></div>
+    <div class="stat"><div class="num" id="stat-pct">0%</div><div class="lbl">Overall</div></div>
+    <div class="stat"><div class="num" id="stat-total">6</div><div class="lbl">Phases</div></div>
+  </div>
+
+  <div id="timeline-container">
+    <svg id="timeline" width="100%" viewBox="0 0 1000 400" preserveAspectRatio="xMidYMid meet"></svg>
+  </div>
+
+  <div id="detail-panel">
+    <p style="color:var(--text-faint);">Select a milestone above to see full details, deliverables, and status.</p>
+  </div>
+
+  <div class="hint">Tip: hover to preview, click to lock in details.</div>
+
+  <footer>Built with D3.js v7 &middot; Data: Spotify Most Streamed Songs 2023 (953 tracks) &middot; Deployed on GitHub Pages</footer>
+</div>
+
+<script>
+// swap in your actual teammates' initials here
+const crew = ["NQ", "I", "AR", "NM", "NA"];
+document.getElementById("crew").innerHTML = crew.map(n =>
+  `<span class="crew-avatar" title="${n}">${n}</span>`
+).join("") + `<span class="crew-label">${crew.length} on the team</span>`;
+
+const data = [
+  {
+    id: 0,
+    name: "Project Initiation",
+    start: "2026-03-01",
+    end: "2026-03-15",
+    status: "done",
+    summary: "Defined the project's purpose and key questions, chose a dataset to work with, and agreed on the tools and workflow the team would use to build the dashboard.",
+    deliverables: ["Problem statement & goals", "Key questions the dashboard should answer", "Dataset selected & scoped", "Tools and tech stack agreed on"]
+  },
+  {
+    id: 1,
+    name: "Data Collection",
+    start: "2026-03-16",
+    end: "2026-04-10",
+    status: "done",
+    summary: "Gathered the raw data from its source, documented what each field means, and did a first pass to understand its size, structure, and quality.",
+    deliverables: ["Raw dataset acquired", "Fields & columns documented", "Initial data quality review", "Data stored & version-controlled"]
+  },
+  {
+    id: 2,
+    name: "Data Cleaning",
+    start: "2026-04-11",
+    end: "2026-05-05",
+    status: "done",
+    summary: "Cleaned up errors and inconsistencies in the data, standardized formatting, and got everything into a shape that's ready for analysis.",
+    deliverables: ["Errors & missing values fixed", "Fields standardized & reformatted", "Data types corrected", "Analysis-ready dataset exported"]
+  },
+  {
+    id: 3,
+    name: "Dashboard Development",
+    start: "2026-05-06",
+    end: "2026-06-10",
+    status: "done",
+    summary: "Built the core interactive visualizations, laid out the dashboard, and added the filters and interactions users need to explore the data.",
+    deliverables: ["Core charts & visualizations built", "Dashboard layout & structure", "Interactive filters and tooltips", "Key insights surfaced visually"]
+  },
+  {
+    id: 4,
+    name: "Testing and Validation",
+    start: "2026-06-11",
+    end: "2026-07-10",
+    status: "done",
+    summary: "Cross-checked every chart against the raw data, tested across browsers and devices, and collected feedback to catch bugs before launch.",
+    deliverables: ["Accuracy checks against raw data", "Cross-browser & device testing", "Peer/reviewer feedback collected", "Bug fixes & visual polish"]
+  },
+  {
+    id: 5,
+    name: "Deployment / Presentation",
+    start: "2026-07-11",
+    end: "2026-07-31",
+    status: "current",
+    summary: "Shipping the finished dashboard to its hosting platform and preparing a presentation walking through the process and key findings.",
+    deliverables: ["Final deployment", "Final QA pass", "Presentation summarizing findings", "Demo rehearsal"]
+  }
+];
+
+const statusColorHex = { done: "#1DB954", current: "#ff3b3b", upcoming: "#535353" };
+const statusLabel = { done: "Done", current: "Live", upcoming: "Queued" };
+
+const svg = d3.select("#timeline");
+const width = 1000, height = 400;
+const margin = { left: 196, right: 40, top: 26, bottom: 26 };
+const rowHeight = 56;
+const barHeight = 20;
+
+const parseDate = d3.timeParse("%Y-%m-%d");
+const formatDate = d3.timeFormat("%b %d, %Y");
+const formatDateShort = d3.timeFormat("%b %-d");
+
+const xScale = d3.scaleTime()
+  .domain([parseDate("2026-03-01"), parseDate("2026-07-31")])
+  .range([margin.left, width - margin.right]);
+
+const rowY = i => margin.top + i * rowHeight;
+const chartBottom = margin.top + data.length * rowHeight;
+
+// Wait for web fonts to finish loading before measuring text for line-wrapping.
+const fontsReady = (document.fonts && document.fonts.ready) ? document.fonts.ready : Promise.resolve();
+fontsReady.then(renderTimeline);
+
+function renderTimeline() {
+
+// alternating row backgrounds + gridlines
+svg.selectAll(".row-track")
+  .data(data)
+  .enter()
+  .append("rect")
+  .attr("class", "interval-track")
+  .attr("x", margin.left - 12)
+  .attr("y", (d,i) => rowY(i) + 2)
+  .attr("width", width - margin.right - (margin.left - 12))
+  .attr("height", rowHeight - 4)
+  .attr("rx", 8)
+  .attr("opacity", (d,i) => i % 2 === 0 ? 0.5 : 0);
+
+svg.selectAll(".row-gridline")
+  .data(data)
+  .enter()
+  .append("line")
+  .attr("class", "row-gridline")
+  .attr("x1", margin.left - 12).attr("x2", width - margin.right)
+  .attr("y1", (d,i) => rowY(i) + rowHeight)
+  .attr("y2", (d,i) => rowY(i) + rowHeight);
+
+// month ticks + vertical gridlines
+const months = d3.timeMonths(parseDate("2026-03-01"), parseDate("2026-08-01"));
+svg.selectAll(".month-gridline")
+  .data(months)
+  .enter()
+  .append("line")
+  .attr("class", "row-gridline")
+  .attr("x1", d => xScale(d)).attr("x2", d => xScale(d))
+  .attr("y1", margin.top).attr("y2", chartBottom);
+
+svg.selectAll(".tick-month")
+  .data(months)
+  .enter()
+  .append("text")
+  .attr("class", "tick-month")
+  .attr("x", d => xScale(d))
+  .attr("y", chartBottom + 22)
+  .attr("text-anchor", "middle")
+  .text(d => d3.timeFormat("%b")(d));
+
+// row labels: phase name (word-wrapped) + date range, left of the chart area
+const labelGroups = svg.selectAll(".row-label")
+  .data(data)
+  .enter()
+  .append("g")
+  .attr("class", "row-label")
+  .attr("transform", (d,i) => `translate(${margin.left - 24}, ${rowY(i) + rowHeight/2})`);
+
+labelGroups.each(function(d) {
+  const g = d3.select(this);
+  const nameText = g.append("text")
+    .attr("class", "row-label-name")
+    .attr("text-anchor", "end")
+    .attr("x", 0)
+    .text(d.name);
+
+  wrapLabel(nameText, 150, 12.5);
+  const bbox = nameText.node().getBBox();
+
+  g.append("text")
+    .attr("class", "row-label-date")
+    .attr("text-anchor", "end")
+    .attr("x", 0)
+    .attr("y", bbox.y + bbox.height + 11)
+    .text(`${formatDateShort(parseDate(d.start))} \u2013 ${formatDateShort(parseDate(d.end))}`);
+});
+
+function wrapLabel(text, maxWidth, lineHeight) {
+  text.each(function() {
+    const t = d3.select(this);
+    const words = t.text().split(/\s+/).reverse();
+    let word, line = [], lineNumber = 0;
+    let tspan = t.text(null).append("tspan").attr("x", 0).attr("dy", 0);
+    while (word = words.pop()) {
+      line.push(word);
+      tspan.text(line.join(" "));
+      if (tspan.node().getComputedTextLength() > maxWidth && line.length > 1) {
+        line.pop();
+        tspan.text(line.join(" "));
+        line = [word];
+        tspan = t.append("tspan").attr("x", 0).attr("dy", lineHeight).text(word);
+        lineNumber++;
+      }
+    }
+    const totalLines = lineNumber + 1;
+    t.select("tspan").attr("dy", -((totalLines - 1) / 2) * lineHeight);
+  });
+}
+
+// interval bars
+const barGroups = svg.selectAll(".bar-group")
+  .data(data)
+  .enter()
+  .append("g")
+  .attr("class", "bar-group")
+  .style("cursor", "pointer");
+
+const bars = barGroups.append("rect")
+  .attr("class", "interval-bar")
+  .attr("x", d => xScale(parseDate(d.start)))
+  .attr("y", (d,i) => rowY(i) + (rowHeight - barHeight)/2)
+  .attr("height", barHeight)
+  .attr("rx", 6)
+  .attr("width", 0)
+  .attr("fill", d => statusColorHex[d.status])
+  .attr("opacity", d => d.status === "upcoming" ? 0.55 : 1)
+  .on("mouseover", function(e, d) { showDetail(d); })
+  .on("click", function(e, d) {
+    d3.selectAll(".interval-bar").attr("stroke", "#000000").attr("stroke-width", 1.5);
+    d3.select(this).attr("stroke", "#fff").attr("stroke-width", 2.5);
+    showDetail(d);
+  });
+
+bars.transition().duration(800).delay((d,i) => i * 130).ease(d3.easeCubicOut)
+  .attr("width", d => Math.max(xScale(parseDate(d.end)) - xScale(parseDate(d.start)), 6));
+
+// duration label centered inside each bar (only when there's room)
+barGroups.append("text")
+  .attr("class", "interval-bar-label")
+  .attr("x", d => xScale(parseDate(d.start)) + Math.max(xScale(parseDate(d.end)) - xScale(parseDate(d.start)), 6)/2)
+  .attr("y", (d,i) => rowY(i) + rowHeight/2 + 4)
+  .attr("text-anchor", "middle")
+  .attr("opacity", 0)
+  .text(d => {
+    const days = Math.round((parseDate(d.end) - parseDate(d.start)) / 86400000);
+    const w = xScale(parseDate(d.end)) - xScale(parseDate(d.start));
+    return w > 46 ? `${days}d` : "";
+  })
+  .transition().delay((d,i) => i * 130 + 500).duration(300)
+  .attr("opacity", 1);
+
+// today marker
+const todayX = xScale(parseDate("2026-07-20"));
+svg.append("line")
+  .attr("class", "today-line")
+  .attr("x1", todayX).attr("x2", todayX)
+  .attr("y1", margin.top - 6).attr("y2", chartBottom);
+
+svg.append("text")
+  .attr("class", "today-label")
+  .attr("x", todayX)
+  .attr("y", margin.top - 16)
+  .attr("text-anchor", "middle")
+  .text("Today");
+
+// initial stats
+const doneCount = data.filter(d => d.status === "done").length;
+const pct = Math.round(((doneCount + 0.5) / data.length) * 100);
+d3.select("#stat-done").text(doneCount);
+d3.select("#stat-pct").text(pct + "%");
+d3.select("#stat-total").text(data.length);
+
+function showDetail(d) {
+  const panel = d3.select("#detail-panel");
+  panel.html(`
+    <h2>${d.name} <span class="status-pill" style="background:${statusColorHex[d.status]}26; color:${statusColorHex[d.status]}">${statusLabel[d.status]}</span></h2>
+    <div class="date-range">${formatDate(parseDate(d.start))} &mdash; ${formatDate(parseDate(d.end))}</div>
+    <p>${d.summary}</p>
+    <ul>${d.deliverables.map(x => `<li>${x}</li>`).join("")}</ul>
+  `);
+}
+
+// show current phase by default
+showDetail(data.find(d => d.status === "current"));
+
+}
+</script>
+</body>
+</html>
