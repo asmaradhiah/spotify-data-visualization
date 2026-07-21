@@ -25,3 +25,4 @@ Cleaned dataset for visualization
 4. Release Trends
 5. Audio Features Analysis
 6. Correlation Analysis
+7. Timeline - https://asmaradhiah.github.io/spotify-data-visualization/index.html
