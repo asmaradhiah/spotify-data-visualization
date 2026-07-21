@@ -12,10 +12,7 @@ Music Streaming Analytics
 ## Files
 
 ### dv_cleaning.ipynb
-Data cleaning process
-
-### eda.ipynb
-Exploratory Data Analysis
+Data cleaning process and Exploratory Data Analysis
 
 ### Most_Streamed_Spotify_Songs_2024_Cleaned.csv
 Cleaned dataset for visualization
