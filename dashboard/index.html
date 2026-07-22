@@ -67,11 +67,27 @@
                 <div class="card-header">
                     <div>
                         <p class="eyebrow small">Streaming Trend</p>
-                        <h2>Total Streams by Release Year</h2>
+                        <h2>Total Streams by Release Period</h2>
                     </div>
-                    <p class="card-note">Tracks overall streaming volume trends based on release year.</p>
+                    <div class="feature-selector">
+                        <label for="trend-granularity">View by:</label>
+                        <select id="trend-granularity" aria-label="Choose time granularity">
+                            <option value="year">Year</option>
+                            <option value="quarter">Quarter</option>
+                            <option value="month">Month</option>
+                        </select>
+                    </div>
                 </div>
-                <svg id="trend-chart" viewBox="0 0 760 360" preserveAspectRatio="none" aria-label="Yearly streams line chart"></svg>
+
+                <!-- Drill-down path: year to quarter to month -->
+                <div class="drill-bar">
+                    <span class="drill-label">Drill path</span>
+                    <div id="trend-breadcrumb" class="breadcrumb" aria-live="polite"></div>
+                    <button id="trend-up" class="drill-btn" type="button" aria-label="Go up one level">Back</button>
+                </div>
+
+                <svg id="trend-chart" viewBox="0 0 760 360" preserveAspectRatio="none" aria-label="Streams over time line chart"></svg>
+                <p class="chart-caption">Click a point to drill into quarters, then into months.</p>
             </article>
 
             <article class="panel chart-card">
@@ -80,7 +96,7 @@
                         <p class="eyebrow small">Audio Feature Distribution</p>
                         <h2>Streams by Genre Cluster</h2>
                     </div>
-                    <p class="card-note">Click any bar to drill-down into that genre cluster.</p>
+                    <p class="card-note">Stream volume across derived audio-feature clusters.</p>
                 </div>
                 <svg id="genre-chart" viewBox="0 0 760 360" preserveAspectRatio="none" aria-label="Genre cluster bar chart"></svg>
             </article>
