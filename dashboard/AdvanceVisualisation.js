@@ -1,5 +1,5 @@
 /* ============================================================
-   Spotify Music Dashboard — Task 5: Advanced Visualization Techniques
+   Spotify Music Dashboard — Advanced Visualization Techniques
    Technique 1: Correlation Heat Map
    Technique 2: Parallel Coordinates Plot (cluster-average by default)
    Data: SPOTIFY_DATA (from data.js) — 769 tracks, released_year 2019-2023
