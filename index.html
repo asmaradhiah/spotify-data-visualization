@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Spotify Music Dashboard · Advanced Visualization Techniques</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<div class="page">
+
+  <!-- ===================== PAGE TABS ===================== -->
+  <nav class="page-tabs">
+    <span class="tab">Dashboard Overview</span>
+    <span class="tab active">Advanced Visualization Techniques</span>
+  </nav>
+
+  <!-- ===================== HEADER (matches main dashboard page) ===================== -->
+  <header class="panel hero">
+    <p class="eyebrow">SPOTIFY DATA VISUALIZATION</p>
+    <h1>Spotify Music Dashboard</h1>
+    <p class="subtitle">Explore and analyze Spotify music data with interactive visualizations.</p>
+  </header>
+
+  <!-- ===================== FILTER BAR (matches main dashboard page) ===================== -->
+  <section class="panel filterbar">
+    <div class="field">
+      <label for="yearFilter">YEAR</label>
+      <select id="yearFilter">
+        <option value="all">All</option>
+      </select>
+    </div>
+    <div class="field">
+      <label for="platformFilter">PLATFORM</label>
+      <select id="platformFilter">
+        <option value="all">All</option>
+        <option value="Spotify">Spotify</option>
+        <option value="Apple">Apple</option>
+      </select>
+    </div>
+    <div class="field">
+      <label for="clusterFilter">GENRE CLUSTER</label>
+      <select id="clusterFilter">
+        <option value="all">All</option>
+      </select>
+    </div>
+    <button id="resetBtn" class="reset-btn">Reset filters</button>
+  </section>
+
+  <!-- ===================== KPI CARDS (same 5 metrics as main dashboard page) ===================== -->
+  <section class="kpi-row" id="kpiRow"></section>
+
+  <!-- ===================== SECONDARY FILTER — advanced visuals only ===================== -->
+  <section class="panel mode-bar">
+    <div class="mode-bar-text">
+      <p class="eyebrow small">ADDITIONAL FILTER &middot; ADVANCED VISUALS ONLY</p>
+      <p class="mode-note">Applies only to the two charts below, on top of the filters above.</p>
+    </div>
+    <div class="field">
+      <label for="modeFilter">MUSICAL MODE</label>
+      <select id="modeFilter">
+        <option value="all">All</option>
+        <option value="Major">Major</option>
+        <option value="Minor">Minor</option>
+      </select>
+    </div>
+  </section>
+
+  <!-- ===================== HEAT MAP ===================== -->
+  <section class="panel chart-panel">
+    <div class="panel-head">
+      <div>
+        <p class="eyebrow">TECHNIQUE 1 &middot; HEAT MAP</p>
+        <h2>Audio Feature Correlation Heat Map</h2>
+      </div>
+      <div class="chart-controls">
+        <label for="metricFilter">Include</label>
+        <select id="metricFilter">
+          <option value="audio">Audio features only</option>
+          <option value="full">Audio features + streams</option>
+        </select>
+      </div>
+    </div>
+    <p class="panel-note-full">Hover a cell for the exact correlation coefficient. Green = the two traits rise
+      together; red = one rises as the other falls.</p>
+
+    <div class="insight-banner" id="heatmapInsight">
+      <span class="insight-icon">💡</span>
+      <span><strong>Key takeaway:</strong> Energetic songs are reliably less acoustic &mdash; but no single audio
+      trait predicts how many streams a song gets.</span>
+    </div>
+
+    <div class="chart-body">
+      <div id="heatmap" class="chart-svg-wrap"></div>
+      <div id="heatmapTooltip" class="tooltip"></div>
+    </div>
+
+    <div class="rationale-grid">
+      <div class="rationale-card">
+        <p class="eyebrow small">WHY THIS CHART</p>
+        <p>Comparing nine traits two at a time would take dozens of separate charts. One heat map shows every
+          pairwise relationship at once, so patterns across the whole catalogue are visible in a single
+          glance.</p>
+      </div>
+      <div class="rationale-card">
+        <p class="eyebrow small">WHAT IT TELLS US</p>
+        <p>High-energy tracks read as less acoustic and slightly more upbeat. Streams, on the other hand, barely
+          track any single trait &mdash; tempo, energy, danceability, none of them reliably predict a hit.</p>
+      </div>
+      <div class="rationale-card">
+        <p class="eyebrow small">VS. A REGULAR CHART</p>
+        <p>A normal bar or line chart shows one or two variables at a time. This heat map fits every possible
+          pairing into the same fixed space, and stays just as readable if more traits are added later.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== PARALLEL COORDINATES ===================== -->
+  <section class="panel chart-panel">
+    <div class="panel-head">
+      <div>
+        <p class="eyebrow">TECHNIQUE 2 &middot; PARALLEL COORDINATES PLOT</p>
+        <h2>Genre Cluster Audio Profile</h2>
+      </div>
+      <label class="toggle-switch">
+        <input type="checkbox" id="showIndividualToggle" />
+        <span>Show all 769 individual tracks</span>
+      </label>
+    </div>
+    <p class="panel-note-full">Each line traces one genre cluster's typical shape across eight audio traits.
+      Drag on any axis to filter; click a legend chip to isolate a cluster; hover a line for details.</p>
+
+    <div class="insight-banner">
+      <span class="insight-icon">🎧</span>
+      <span><strong>Key takeaway:</strong> Every genre cluster has its own audio "fingerprint" &mdash; Dance
+      tracks run high-energy and danceable, Acoustic tracks bend the opposite way on those same traits.</span>
+    </div>
+
+    <div class="chart-body">
+      <div id="parallel" class="chart-svg-wrap"></div>
+      <div id="parallelTooltip" class="tooltip"></div>
+    </div>
+
+    <div id="clusterLegend" class="legend-row"></div>
+
+    <div class="rationale-grid">
+      <div class="rationale-card">
+        <p class="eyebrow small">WHY THIS CHART</p>
+        <p>A genre cluster is defined by several traits together, not one. Parallel coordinates keeps all eight
+          traits visible on the same lines, so a cluster's whole "shape" reads at a glance.</p>
+      </div>
+      <div class="rationale-card">
+        <p class="eyebrow small">WHAT IT TELLS US</p>
+        <p>Dance and Acoustic clusters sit at opposite ends of the energy/acousticness traits. Switching on
+          individual tracks reveals outliers &mdash; songs that don't match their own cluster's usual shape,
+          good candidates for cross-genre playlists.</p>
+      </div>
+      <div class="rationale-card">
+        <p class="eyebrow small">VS. A REGULAR CHART</p>
+        <p>A grouped bar chart can only show one trait's average per cluster at a time. This chart shows all
+          eight traits together, and can reveal individual outliers a bar chart's average would hide.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footnote">
+    Dataset: Most Streamed Spotify Songs 2023 (cleaned), filtered to released_year 2019&ndash;2023 &middot; 769
+    tracks &middot; Genre Cluster is a heuristic derived from audio features, consistent with the main
+    dashboard page.
+  </footer>
+
+</div>
+
+<script src="d3.min.js"></script>
+<script src="data.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
