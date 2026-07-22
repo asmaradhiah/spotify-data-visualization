@@ -144,10 +144,75 @@
   .crew-label{ font-size:11px; color:var(--text-dim); margin-left:6px; }
 
   footer{ text-align:center; color:var(--text-faint); font-size:10.5px; margin-top:16px; }
+  /* Navigation Styling */
+  nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--line);
+  }
+  
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--display);
+    font-weight: 800;
+    font-size: 13px;
+    letter-spacing: 1px;
+    color: var(--text-main);
+  }
+  
+  .logo-dot {
+    width: 8px;
+    height: 8px;
+    background-color: var(--accent);
+    border-radius: 50%;
+  }
+  
+  .nav-links {
+    display: flex;
+    list-style: none;
+    gap: 20px;
+    margin: 0;
+    padding: 0;
+  }
+  
+  .nav-links a {
+    color: var(--text-dim);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 500;
+    transition: color 0.2s ease;
+  }
+  
+  .nav-links a:hover,
+  .nav-links a.active {
+    color: var(--text-main);
+  }
+  
+  .nav-links a.active {
+    border-bottom: 2px solid var(--accent);
+    padding-bottom: 2px;
+  }
 </style>
 </head>
 <body>
 <div class="wrap">
+    <!-- Navigation Bar -->
+  <nav>
+    <div class="logo">
+      <div class="logo-dot"></div> SPOTIFY DATA 2024
+    </div>
+    <ul class="nav-links">
+      <li><a href="landingpage.html" class="active">Overview</a></li>
+      <li><a href="timeline.html">Timeline</a></li>
+      <li><a href="dashboard/index.html">Dashboard Hub</a></li>
+    </ul>
+  </nav>
+  
   <header>
     <div class="eyebrow">Data Visualization Group Project</div>
     <h1>Spotify Dashboard <span>&mdash; Project Progress Timeline</span></h1>
