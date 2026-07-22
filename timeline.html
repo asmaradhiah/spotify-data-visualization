@@ -33,7 +33,10 @@
   body{
     margin:0;
     font-family:var(--body);
-    background:var(--bg-deep);
+    background:
+      radial-gradient(circle at 50% 0%, rgba(30,215,96,0.16) 0%, transparent 50%),
+      linear-gradient(180deg, #0f2e1b 0%, #081b10 20%, #050f0a 40%, #000000 70%);
+    background-attachment:fixed;
     color:var(--text-main);
     min-height:100vh;
     padding:26px 20px 30px;
@@ -103,7 +106,8 @@
     font-size:9.5px; padding:2px 9px; border-radius:20px; font-weight:700;
     text-transform:uppercase; letter-spacing:0.5px;
   }
-  #detail-panel .date-range{ color:var(--text-dim); font-size:11.5px; margin-bottom:9px; font-weight:500; }
+  #detail-panel .date-range{ color:var(--text-dim); font-size:11.5px; margin-bottom:4px; font-weight:500; }
+  #detail-panel .worked-by{ color:var(--accent-3); font-size:11px; margin-bottom:9px; font-weight:600; }
   #detail-panel p{ color:#e6eaf5; line-height:1.42; margin:0 0 9px; font-size:12.5px; }
   #detail-panel ul{ margin:0; padding-left:0; list-style:none; }
   #detail-panel li{
@@ -115,24 +119,28 @@
 
   .hint{ text-align:center; color:var(--text-faint); font-size:11px; margin-top:8px; }
   .progress-summary{
-    display:flex; justify-content:center; gap:0; margin:12px 0 12px;
-    border:1.5px solid var(--line); border-radius:14px; overflow:hidden;
+    display:flex; justify-content:center; gap:0; margin:14px 0 14px;
+    background:#000000;
+    border:1.5px solid rgba(255,255,255,0.14); border-radius:14px; overflow:hidden;
+    box-shadow:0 14px 34px -12px rgba(0,0,0,0.75), inset 0 1px 0 rgba(255,255,255,0.04);
   }
-  .stat{ text-align:center; flex:1; padding:10px 12px; border-left:1.5px solid var(--line); }
+  .stat{ text-align:center; flex:1; padding:12px 12px; border-left:1.5px solid rgba(255,255,255,0.14); }
   .stat:first-child{ border-left:none; }
-  .stat .num{ font-family:var(--display); font-size:20px; font-weight:700; color:var(--accent); }
+  .stat .num{ font-family:var(--display); font-size:21px; font-weight:800; color:var(--accent); text-shadow:0 0 16px rgba(29,185,84,0.5); }
   .stat .lbl{ font-size:10px; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.8px; margin-top:2px; }
 
-  .crew{ display:flex; align-items:center; justify-content:center; gap:8px; margin:0 0 10px; flex-wrap:wrap; }
+  .crew{ display:flex; align-items:center; justify-content:center; gap:8px; margin:0 0 6px; flex-wrap:wrap; }
   .crew-avatar{
     min-width:24px; height:24px; padding:0 7px; border-radius:12px;
     display:flex; align-items:center; justify-content:center;
     font-family:var(--display); font-weight:700; font-size:10.5px; letter-spacing:0.3px;
-    color:#04140e; background:var(--accent);
+    color:#231a00; background:var(--accent-3);
     border:1.5px solid var(--bg-deep);
+    cursor:pointer; transition:transform 0.15s ease, opacity 0.15s ease, box-shadow 0.15s ease;
   }
-  .crew-avatar:nth-child(2n){ background:var(--accent-2); color:#210313; }
-  .crew-avatar:nth-child(3n){ background:var(--accent-3); color:#231a00; }
+  .crew-avatar:hover{ transform:translateY(-1px); }
+  .crew-avatar.is-dim{ opacity:0.32; }
+  .crew-avatar.is-active{ box-shadow:0 0 0 2px var(--bg-panel), 0 0 0 3.5px var(--accent-3); transform:translateY(-1px); }
   .crew-label{ font-size:11px; color:var(--text-dim); margin-left:6px; }
 
   footer{ text-align:center; color:var(--text-faint); font-size:10.5px; margin-top:16px; }
@@ -175,10 +183,51 @@
 
 <script>
 // swap in your actual teammates' initials here
-const crew = ["NQ", "I", "AR", "NM", "NA"];
+const crew = ["NQ", "I", "A", "NM", "NA"];
+const crewFullNames = {
+  NQ: "Nasuha Qistina",
+  I: "Irsha",
+  A: "Asma' Radhiah",
+  NM: "Nur Madihah",
+  NA: "Nur Aisyah"
+};
+
 document.getElementById("crew").innerHTML = crew.map(n =>
-  `<span class="crew-avatar" title="${n}">${n}</span>`
+  `<span class="crew-avatar" data-member="${n}" title="${crewFullNames[n]}">${n}</span>`
 ).join("") + `<span class="crew-label">${crew.length} on the team</span>`;
+
+let selectedMember = null;
+
+function applyCrewSelection() {
+  const avatars = document.querySelectorAll(".crew-avatar");
+  const bars = document.querySelectorAll(".interval-bar");
+
+  if (!selectedMember) {
+    avatars.forEach(a => a.classList.remove("is-active", "is-dim"));
+    bars.forEach(b => { b.style.opacity = null; b.style.filter = null; });
+    return;
+  }
+
+  avatars.forEach(a => {
+    const isMe = a.dataset.member === selectedMember;
+    a.classList.toggle("is-active", isMe);
+    a.classList.toggle("is-dim", !isMe);
+  });
+
+  bars.forEach((b, i) => {
+    const onPhase = data[i].team.includes(selectedMember);
+    b.style.opacity = onPhase ? "1" : "0.18";
+    b.style.filter = onPhase ? "drop-shadow(0 0 5px rgba(255,210,63,0.55))" : "none";
+  });
+}
+
+document.getElementById("crew").addEventListener("click", (e) => {
+  const avatar = e.target.closest(".crew-avatar");
+  if (!avatar) return;
+  const member = avatar.dataset.member;
+  selectedMember = selectedMember === member ? null : member;
+  applyCrewSelection();
+});
 
 const data = [
   {
@@ -187,6 +236,7 @@ const data = [
     start: "2026-03-01",
     end: "2026-03-15",
     status: "done",
+    team: ["NQ", "I", "A", "NM", "NA"],
     summary: "Defined the project's purpose and key questions, chose a dataset to work with, and agreed on the tools and workflow the team would use to build the dashboard.",
     deliverables: ["Problem statement & goals", "Key questions the dashboard should answer", "Dataset selected & scoped", "Tools and tech stack agreed on"]
   },
@@ -196,6 +246,7 @@ const data = [
     start: "2026-03-16",
     end: "2026-04-10",
     status: "done",
+    team: ["A"],
     summary: "Gathered the raw data from its source, documented what each field means, and did a first pass to understand its size, structure, and quality.",
     deliverables: ["Raw dataset acquired", "Fields & columns documented", "Initial data quality review", "Data stored & version-controlled"]
   },
@@ -205,6 +256,7 @@ const data = [
     start: "2026-04-11",
     end: "2026-05-05",
     status: "done",
+    team: ["A"],
     summary: "Cleaned up errors and inconsistencies in the data, standardized formatting, and got everything into a shape that's ready for analysis.",
     deliverables: ["Errors & missing values fixed", "Fields standardized & reformatted", "Data types corrected", "Analysis-ready dataset exported"]
   },
@@ -214,6 +266,7 @@ const data = [
     start: "2026-05-06",
     end: "2026-06-10",
     status: "done",
+    team: ["NQ", "I", "NM", "NA"],
     summary: "Built the core interactive visualizations, laid out the dashboard, and added the filters and interactions users need to explore the data.",
     deliverables: ["Core charts & visualizations built", "Dashboard layout & structure", "Interactive filters and tooltips", "Key insights surfaced visually"]
   },
@@ -223,6 +276,7 @@ const data = [
     start: "2026-06-11",
     end: "2026-07-10",
     status: "done",
+    team: ["NQ", "I", "A", "NM", "NA"],
     summary: "Cross-checked every chart against the raw data, tested across browsers and devices, and collected feedback to catch bugs before launch.",
     deliverables: ["Accuracy checks against raw data", "Cross-browser & device testing", "Peer/reviewer feedback collected", "Bug fixes & visual polish"]
   },
@@ -232,6 +286,7 @@ const data = [
     start: "2026-07-11",
     end: "2026-07-31",
     status: "current",
+    team: ["NQ", "I", "A", "NM", "NA"],
     summary: "Shipping the finished dashboard to its hosting platform and preparing a presentation walking through the process and key findings.",
     deliverables: ["Final deployment", "Final QA pass", "Presentation summarizing findings", "Demo rehearsal"]
   }
@@ -422,6 +477,7 @@ function showDetail(d) {
   panel.html(`
     <h2>${d.name} <span class="status-pill" style="background:${statusColorHex[d.status]}26; color:${statusColorHex[d.status]}">${statusLabel[d.status]}</span></h2>
     <div class="date-range">${formatDate(parseDate(d.start))} &mdash; ${formatDate(parseDate(d.end))}</div>
+    <div class="worked-by">Worked by ${d.team.map(m => crewFullNames[m]).join(", ")}</div>
     <p>${d.summary}</p>
     <ul>${d.deliverables.map(x => `<li>${x}</li>`).join("")}</ul>
   `);
@@ -434,3 +490,4 @@ showDetail(data.find(d => d.status === "current"));
 </script>
 </body>
 </html>
+
