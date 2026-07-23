@@ -1,5 +1,5 @@
 /* ============================================================
-   Spotify Music Dashboard — Advanced Visualization Techniques
+   Spotify Music Dashboard — Task 5: Advanced Visualization Techniques
    Technique 1: Correlation Heat Map
    Technique 2: Parallel Coordinates Plot (cluster-average by default)
    Data: SPOTIFY_DATA (from data.js) — 769 tracks, released_year 2019-2023
@@ -52,11 +52,22 @@ function pearson(xs, ys) {
   return denom === 0 ? 0 : num / denom;
 }
 
-function fmtG(n) { return Math.round(n / 1e9) + "G"; }
-function fmtM(n) { return Math.round(n / 1e6) + "M"; }
+const formatCompact = d3.format(".2s");
+function fmtStreams(n) { return formatCompact(n).replace("G", "B"); }
 
 function hasSpotify(d) { return d.playlists_spotify > 0 || d.charts_spotify > 0; }
 function hasApple(d) { return d.playlists_apple > 0 || d.charts_apple > 0; }
+
+/* Exact genre-cluster rule used on the main dashboard page, so cluster labels
+   and cluster-based totals match that page precisely. */
+function classifyCluster(d) {
+  if (d.acousticness >= 70) return "Acoustic";
+  if (d.energy >= 75 && d.danceability >= 70) return "Dance";
+  if (d.valence >= 70 && d.energy >= 60) return "Pop";
+  if (d.instrumentalness >= 20) return "Instrumental";
+  if (d.speechiness >= 12) return "Vocal";
+  return "Chill";
+}
 
 /* Top-bar filters — same fields as the main dashboard page (Year / Platform / Genre Cluster) */
 function getFilteredData() {
@@ -140,30 +151,23 @@ function renderKPIs() {
   const topCluster = byCluster[0];
 
   const cards = [
-    { label: "Total songs", value: data.length, desc: "Recent 5 release years (2019-2023)." },
-    { label: "Total streams", value: fmtG(totalStreams), desc: "Combined stream count for the current filters." },
-    { label: "Average streams", value: fmtM(avgStreams), desc: "Mean streams per song." },
-    { label: "Top year", value: topYear ? topYear.year : "-", desc: topYear ? `${fmtG(topYear.total)} total streams` : "" },
-    { label: "Top cluster", value: topCluster ? topCluster.cluster : "-", desc: topCluster ? `${fmtG(topCluster.total)} total streams` : "" }
+    { label: "Total Songs", value: data.length, desc: "Filtered track count." },
+    { label: "Total Streams", value: fmtStreams(totalStreams), desc: "Combined stream count." },
+    { label: "Average Streams", value: fmtStreams(avgStreams), desc: "Mean streams per track." },
+    { label: "Top Year", value: topYear ? topYear.year : "-", desc: topYear ? `${fmtStreams(topYear.total)} streams` : "" },
+    { label: "Top Cluster", value: topCluster ? topCluster.cluster : "-", desc: topCluster ? `${fmtStreams(topCluster.total)} streams` : "" }
   ];
 
-  const sel = d3.select("#kpiRow").selectAll(".kpi").data(cards);
+  const sel = d3.select("#kpiRow").selectAll(".kpi-card").data(cards);
+  const enter = sel.enter().append("div").attr("class", "kpi-card");
+  enter.append("p").attr("class", "label");
+  enter.append("p").attr("class", "value");
+  enter.append("p").attr("class", "desc");
 
-const enter = sel.enter()
-    .append("div")
-    .attr("class", "kpi");
-
-enter.append("p").attr("class", "kpi-label");
-enter.append("p").attr("class", "kpi-value");
-enter.append("p").attr("class", "kpi-subtext");
-
-const merged = enter.merge(sel);
-
-merged.select(".kpi-label").text(d => d.label);
-merged.select(".kpi-value").text(d => d.value);
-merged.select(".kpi-subtext").text(d => d.desc);
-
-sel.exit().remove();
+  const merged = enter.merge(sel);
+  merged.select(".label").text(d => d.label);
+  merged.select(".value").text(d => d.value);
+  merged.select(".desc").text(d => d.desc);
 }
 
 /* ================================================================
@@ -343,7 +347,7 @@ function drawParallel() {
           .style("opacity", 1)
           .style("left", mx + "px")
           .style("top", my + "px")
-          .html(`<strong>${d.track}</strong><br/>${d.artist}<br/>Cluster: ${d.cluster} &middot; ${d.year}<br/>Streams: ${fmtM(d.streams)}`);
+          .html(`<strong>${d.track}</strong><br/>${d.artist}<br/>Cluster: ${d.cluster} &middot; ${d.year}<br/>Streams: ${fmtStreams(d.streams)}`);
       })
       .on("mouseleave", function (event, d) {
         d3.select(this)
@@ -478,5 +482,6 @@ function renderLegend() {
 }
 
 /* ---------------- init ---------------- */
+SPOTIFY_DATA.forEach(d => { d.cluster = classifyCluster(d); });
 initFilters();
 refreshAll();
