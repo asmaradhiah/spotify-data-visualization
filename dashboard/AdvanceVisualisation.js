@@ -148,15 +148,22 @@ function renderKPIs() {
   ];
 
   const sel = d3.select("#kpiRow").selectAll(".kpi").data(cards);
-  const enter = sel.enter().append("div").attr("class", "kpi-card");
-  enter.append("p").attr("class", "label");
-  enter.append("p").attr("class", "value");
-  enter.append("p").attr("class", "desc");
 
-  const merged = enter.merge(sel);
-  merged.select(".label").text(d => d.label);
-  merged.select(".value").text(d => d.value);
-  merged.select(".desc").text(d => d.desc);
+const enter = sel.enter()
+    .append("div")
+    .attr("class", "kpi");
+
+enter.append("p").attr("class", "kpi-label");
+enter.append("p").attr("class", "kpi-value");
+enter.append("p").attr("class", "kpi-subtext");
+
+const merged = enter.merge(sel);
+
+merged.select(".kpi-label").text(d => d.label);
+merged.select(".kpi-value").text(d => d.value);
+merged.select(".kpi-subtext").text(d => d.desc);
+
+sel.exit().remove();
 }
 
 /* ================================================================
