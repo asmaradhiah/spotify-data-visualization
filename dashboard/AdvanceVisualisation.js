@@ -147,7 +147,7 @@ function renderKPIs() {
     { label: "Top cluster", value: topCluster ? topCluster.cluster : "-", desc: topCluster ? `${fmtG(topCluster.total)} total streams` : "" }
   ];
 
-  const sel = d3.select("#kpiRow").selectAll(".kpi-card").data(cards);
+  const sel = d3.select("#kpiRow").selectAll(".kpi").data(cards);
   const enter = sel.enter().append("div").attr("class", "kpi-card");
   enter.append("p").attr("class", "label");
   enter.append("p").attr("class", "value");
