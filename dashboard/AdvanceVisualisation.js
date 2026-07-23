@@ -2,8 +2,11 @@
    Spotify Music Dashboard — Task 5: Advanced Visualization Techniques
    Technique 1: Correlation Heat Map
    Technique 2: Parallel Coordinates Plot (cluster-average by default)
-   Data: SPOTIFY_DATA (from data.js) — 769 tracks, released_year 2019-2023
+   Data: Fetched from Most_Streamed_Spotify_Songs_2023_Cleaned.csv
    ============================================================ */
+
+// Declare the global data array so other functions can access it
+let SPOTIFY_DATA = [];
 
 const FEATURE_META = {
   danceability:    { label: "Danceability",    accessor: d => d.danceability },
@@ -347,7 +350,7 @@ function drawParallel() {
           .style("opacity", 1)
           .style("left", mx + "px")
           .style("top", my + "px")
-          .html(`<strong>${d.track}</strong><br/>${d.artist}<br/>Cluster: ${d.cluster} &middot; ${d.year}<br/>Streams: ${fmtStreams(d.streams)}`);
+          .html(`<strong>${d.track_name || d.track}</strong><br/>${d.artist_name || d.artist}<br/>Cluster: ${d.cluster} &middot; ${d.year}<br/>Streams: ${fmtStreams(d.streams)}`);
       })
       .on("mouseleave", function (event, d) {
         d3.select(this)
@@ -481,7 +484,48 @@ function renderLegend() {
   });
 }
 
-/* ---------------- init ---------------- */
-SPOTIFY_DATA.forEach(d => { d.cluster = classifyCluster(d); });
-initFilters();
-refreshAll();
+/* ================================================================
+   INITIALIZATION & DATA LOADING
+   ================================================================ */
+const csvUrl = "../spotify-data-visualization/dataset/Most_Streamed_Spotify_Songs_2023_Cleaned.csv";
+
+// Load the CSV data
+d3.csv(csvUrl, function(d) {
+  return {
+    ...d,
+    // Track & Artist names (handles column variations)
+    track: d.track_name || d.track || "Unknown Track",
+    artist: d['artist(s)_name'] || d.artist_name || d.artist || "Unknown Artist",
+
+    // Audio Features (handles 'danceability_%' as well as 'danceability')
+    danceability:     +(d['danceability_%']     ?? d.danceability     ?? 0),
+    valence:          +(d['valence_%']          ?? d.valence          ?? 0),
+    energy:           +(d['energy_%']           ?? d.energy           ?? 0),
+    acousticness:     +(d['acousticness_%']     ?? d.acousticness     ?? 0),
+    instrumentalness: +(d['instrumentalness_%'] ?? d.instrumentalness ?? 0),
+    liveness:         +(d['liveness_%']         ?? d.liveness         ?? 0),
+    speechiness:      +(d['speechiness_%']      ?? d.speechiness      ?? 0),
+    bpm:              +(d.bpm                   ?? 0),
+    
+    // Metrics & Metadata
+    streams:          +(d.streams || 0),
+    year:             +(d.released_year || d.year || 0),
+    playlists_spotify: +(d.in_spotify_playlists || d.playlists_spotify || 0),
+    charts_spotify:    +(d.in_spotify_charts    || d.charts_spotify    || 0),
+    playlists_apple:   +(d.in_apple_playlists   || d.playlists_apple   || 0),
+    charts_apple:      +(d.in_apple_charts      || d.charts_apple      || 0)
+  };
+}).then(function(data) {
+  // Assign the parsed data to the global variable
+  SPOTIFY_DATA = data;
+  
+  // Assign genre clusters based on the numeric features
+  SPOTIFY_DATA.forEach(d => { d.cluster = classifyCluster(d); });
+  
+  // Initialize filters and trigger render
+  initFilters();
+  refreshAll();
+  
+}).catch(function(error) {
+  console.error("Error loading the CSV file:", error);
+});
