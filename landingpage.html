@@ -285,6 +285,35 @@
   color: var(--text-muted);
   font-size: 0.8rem;
 }
+    /* Position the parent list item relative */
+.nav-links .dropdown {
+    position: relative;
+}
+
+/* Hide the dropdown menu by default */
+.nav-links .dropdown-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background-color: #121212; /* Match your navbar background */
+    list-style: none;
+    padding: 10px;
+    min-width: 150px;
+    z-index: 1000;
+}
+
+/* Make each dropdown link stack vertically */
+.dropdown-menu li {
+    display: block;
+    margin: 5px 0;
+}
+
+/* Show the menu when hovering over the parent item */
+.dropdown:hover .dropdown-menu {
+    display: block;
+}
+
   </style>
 </head>
 <body>
@@ -292,14 +321,21 @@
   <!-- Navigation Bar -->
   <nav>
     <div class="logo">
-      <div class="logo-dot"></div> SPOTIFY DATA 2024
+      <div class="logo-dot"></div> SPOTIFY DATA 2023
     </div>
-    <ul class="nav-links">
-      <li><a href="landingpage.html" class="active">Overview</a></li>
-      <li><a href="timeline.html">Timeline</a></li>
-      <li><a href="dashboard/index.html">Dashboard Hub</a></li>
-    </ul>
+  <ul class="nav-links">
+    <li><a href="landingpage.html" class="active">Overview</a></li>
+    <li><a href="timeline.html">Timeline</a></li>
+    <li class="dropdown">
+        <a href="#">Dashboard Hub</a>
+        <ul class="dropdown-menu">
+            <li><a href="dashboard/index.html">Basic</a></li>
+            <li><a href="dashboard/AdvanceVisualization.html">Advanced</a></li>
+        </ul>
+    </li>
+  </ul>
   </nav>
+
 
   <div class="container">
     
