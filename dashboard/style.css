@@ -34,8 +34,8 @@ nav.nav-bar {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1.2rem 3rem;
-    background: rgba(18, 18, 18, 0.85);
+    padding: 1.5rem 4rem;
+    background: rgba(18, 18, 18, 0.8);
     backdrop-filter: blur(12px);
     border-bottom: 1px solid var(--panel-border);
     position: sticky;
@@ -44,7 +44,7 @@ nav.nav-bar {
 }
 
 .logo {
-    font-size: 1.3rem;
+    font-size: 1.5rem;
     font-weight: 800;
     color: var(--spotify-green);
     letter-spacing: -0.5px;
@@ -71,13 +71,53 @@ nav.nav-bar {
     color: var(--text-muted);
     text-decoration: none;
     font-weight: 600;
-    font-size: 0.9rem;
+    font-size: 0.95rem;
     transition: all 0.3s ease;
 }
 
 .nav-links a:hover, .nav-links a.active {
     color: var(--spotify-green);
     text-shadow: 0 0 8px var(--green-glow);
+}
+
+/* Dropdown Menu */
+.nav-links .dropdown {
+    position: relative;
+}
+
+.nav-links .dropdown-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: rgba(18, 18, 18, 0.95);
+    border: 1px solid var(--panel-border);
+    border-radius: 10px;
+    list-style: none;
+    padding: 8px 0;
+    min-width: 180px;
+    z-index: 1000;
+    backdrop-filter: blur(10px);
+}
+/* Add Drop down Styles */
+.dropdown-menu li {
+    display: block;
+}
+
+.dropdown-menu a {
+    display: block;
+    padding: 10px 15px;
+    color: var(--text-muted);
+    text-decoration: none;
+}
+
+.dropdown-menu a:hover {
+    color: var(--spotify-green);
+    background: rgba(29, 185, 84, 0.08);
+}
+
+.dropdown:hover .dropdown-menu {
+    display: block;
 }
 
 /* Shell & Panel Containers */
