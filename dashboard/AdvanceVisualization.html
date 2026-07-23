@@ -4,30 +4,17 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Spotify Music Dashboard · Advanced Visualization Techniques</title>
-<!-- Google Fonts & D3.js -->
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="AdvanceStyle.css">
+<link rel="stylesheet" href="style.css" />
 </head>
 <body>
-    <!-- ===================== NAV BAR ===================== -->
-  <nav class="nav-bar">
-    <div class="logo">
-      <div class="logo-dot"></div> SPOTIFY DATA 2023
-    </div>
-  <ul class="nav-links">
-    <li><a href="../landingpage.html">Overview</a></li>
-    <li><a href="../timeline.html">Timeline</a></li>
-    <li class="dropdown">
-        <a href="#">Dashboard Hub</a>
-        <ul class="dropdown-menu">
-            <li><a href="index.html" >Basic</a></li>
-            <li><a href="AdvanceVisualization.html" class="active">Advanced</a></li>
-        </ul>
-    </li>
-  </ul>
-  </nav>
 
 <div class="page">
+
+  <!-- ===================== PAGE TABS ===================== -->
+  <nav class="page-tabs">
+    <span class="tab">Dashboard Overview</span>
+    <span class="tab active">Advanced Visualization Techniques</span>
+  </nav>
 
   <!-- ===================== HEADER (matches main dashboard page) ===================== -->
   <header class="panel hero">
@@ -178,13 +165,15 @@
   </section>
 
   <footer class="footnote">
-    Dataset: <a href="https://github.com/asmaradhiah/spotify-data-visualization/dataset/Most_Streamed_Spotify_Songs_2023_Cleaned.csv" target="_blank" style="color: #1db954; text-decoration: underline;">Most Streamed Spotify Songs 2023 (cleaned)</a>, filtered to released_year 2019&ndash;2023 &middot; 769 tracks &middot; Genre Cluster is a heuristic derived from audio features, consistent with the main dashboard page.
+    Dataset: Most Streamed Spotify Songs 2023 (cleaned), filtered to released_year 2019&ndash;2023 &middot; 769
+    tracks &middot; Genre Cluster is a heuristic derived from audio features, consistent with the main
+    dashboard page.
   </footer>
 
 </div>
 
-<link rel="stylesheet" href="AdvanceStyle.css">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
-<script src="AdvanceVisualization.js"></script>
+<script src="d3.min.js"></script>
+<script src="data.js"></script>
+<script src="script.js"></script>
 </body>
 </html>
