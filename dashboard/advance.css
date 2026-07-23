@@ -1,0 +1,142 @@
+.page{
+    width:min(1300px,calc(100% - 40px));
+    margin:auto;
+    padding:24px 0 50px;
+}
+
+.filterbar{
+    display:flex;
+    flex-wrap:wrap;
+    gap:20px;
+    align-items:flex-end;
+    padding:20px;
+    margin-bottom:20px;
+}
+
+.field{
+    display:flex;
+    flex-direction:column;
+    flex:1;
+    min-width:180px;
+}
+
+.field label{
+    color:var(--spotify-green);
+    font-size:.75rem;
+    font-weight:700;
+    letter-spacing:.08em;
+    margin-bottom:8px;
+}
+
+.field select{
+    height:42px;
+    border-radius:10px;
+    border:1px solid var(--panel-border);
+    background:rgba(18,18,18,.9);
+    color:white;
+    padding:10px;
+}
+
+.kpi-row{
+    display:grid;
+    grid-template-columns:repeat(5,1fr);
+    gap:16px;
+    margin-bottom:20px;
+}
+
+.kpi-card{
+    padding:20px;
+    border-radius:16px;
+    background:var(--card-bg);
+    border:1px solid var(--panel-border);
+}
+
+.chart-panel{
+    padding:24px;
+    margin-bottom:24px;
+}
+
+.chart-body{
+    position:relative;
+    overflow:auto;
+}
+
+.chart-svg-wrap{
+    min-height:550px;
+}
+
+.legend-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 16px;
+  margin-bottom: 20px;
+}
+
+.legend-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--panel-border);
+  font-size: 0.85rem;
+  color: #e0e0e0;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.legend-chip:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.insight-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(29, 185, 84, 0.1);
+  border-left: 4px solid var(--spotify-green, #1db954);
+  padding: 14px 18px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+  font-size: 0.95rem;
+  color: #ffffff;
+}
+
+.rationale-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.rationale-card {
+  background: rgba(255, 255, 255, 0.03);
+  padding: 18px;
+  border-radius: 12px;
+  border: 1px solid var(--panel-border);
+}
+
+.rationale-card p {
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: #cccccc;
+  margin: 0;
+}
+
+.panel-note-full {
+  font-size: 0.9rem;
+  color: #a7a7a7;
+  margin-bottom: 16px;
+  line-height: 1.4;
+}
+
+.footnote {
+  text-align: center;
+  font-size: 0.8rem;
+  color: #727272;
+  padding: 24px 0 12px;
+  border-top: 1px solid var(--panel-border);
+  margin-top: 30px;
+}
