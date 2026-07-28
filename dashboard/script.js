@@ -126,17 +126,21 @@ function platformField(platform) {
 }
 
 function getFilteredRows() {
-    return allRows.filter(d => {
-        const searchMatch = !state.search ||
-            d.track_name.toLowerCase().includes(state.search.toLowerCase()) ||
-            d.artist_name.toLowerCase().includes(state.search.toLowerCase());
-        const yearMatch = state.year === "All" || d.released_year === +state.year;
-        const platformMatch = state.platform === "All" || d[platformField(state.platform)] > 0;
-        const clusterMatch = state.cluster === "All" || d.cluster === state.cluster;
-        const artistMatch = state.artist === "All" || d.artistNames.includes(state.artist);
+  const query = state.search.toLowerCase();
+  
+  return allRows.filter(d => {
+    // String(...) guarantees numbers or other types are converted to text first
+    const trackName = String(d.track_name || "").toLowerCase();
+    const artistName = String(d.artist_name || d["artist(s)_name"] || "").toLowerCase();
+    
+    const searchMatch = !query || trackName.includes(query) || artistName.includes(query);
+    const yearMatch = state.year === "All" || d.released_year === +state.year;
+    const platformMatch = state.platform === "All" || d[platformField(state.platform)] > 0;
+    const clusterMatch = state.cluster === "All" || d.cluster === state.cluster;
+    const artistMatch = state.artist === "All" || (d.artistNames && d.artistNames.includes(state.artist));
 
-        return searchMatch && yearMatch && platformMatch && clusterMatch && artistMatch;
-    });
+    return searchMatch && yearMatch && platformMatch && clusterMatch && artistMatch;
+  });
 }
 
 function resetTrendDrill(level = "year") {
